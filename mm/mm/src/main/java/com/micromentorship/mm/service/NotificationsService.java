@@ -1,0 +1,50 @@
+package com.micromentorship.mm.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.micromentorship.mm.entity.Notifications;
+import com.micromentorship.mm.repository.NotificationsRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class NotificationsService {
+
+	public NotificationsService(NotificationsRepository repository) {
+		super();
+		this.repository = repository;
+	}
+
+	private NotificationsRepository repository;
+
+	public void createNotification(Long userId, String message, Long referenceId, String type) {
+		Notifications n = new Notifications();
+		n.setUserId(userId);
+		n.setMessage(message);
+		n.setReference_id(referenceId);
+		n.setType(type);
+		n.setCreatedAt(LocalDateTime.now());
+		n.setRead(false);
+
+		repository.save(n);
+	}
+
+	public List<Notifications> getUserNotifications(Long userId) {
+		return repository.findByUserIdOrderByCreatedAtDesc(userId);
+	}
+
+	public void markAsRead(Long id) {
+		Notifications n = repository.findById(id).orElseThrow();
+		n.setRead(true);
+		repository.save(n);
+	}
+
+	public void deleteNotification(Long id) {
+		repository.deleteById(id);
+	}
+
+}
